@@ -7,9 +7,7 @@ st.set_page_config(page_title="Movie Revenue Predictor", layout="centered")
 
 st.title("🔮 Прогнозирование кассовых сборов")
 st.write("Заполните данные о фильме ниже, чтобы нейросеть (XGBoost/RandomForest) предсказала его доход.")
-
-# --- СБОКУ ИЛИ В ЦЕНТРЕ: ВВОД ДАННЫХ ---
-col1, col2 = st.columns(2)  # Делим экран на 2 колонки для красоты
+col1, col2 = st.columns(2)
 
 with col1:
     title = st.text_input("Название фильма", "Супер Хит")
@@ -22,35 +20,23 @@ with col2:
     genres = st.selectbox("Жанр", ["Action", "Comedy", "Drama", "Science Fiction", "Thriller", "None"])
     original_language = st.selectbox("Язык", ["en", "ru", "fr", "ja", "es"])
     release_date = st.date_input("Дата выхода")
-
-# --- КНОПКА ПРЕДСКАЗАНИЯ ---
 if st.button("🚀 Предсказать кассовые сборы", use_container_width=True):
-
-    # 1. Проверяем, существует ли файл модели
     model_path = 'best_movies_pipeline.joblib'
     if not os.path.exists(model_path):
         st.error(f"Файл '{model_path}' не найден! Сначала запусти свой скрипт обучения и сохрани модель.")
     else:
-        # 2. Загружаем пайплайн
         model = joblib.load(model_path)
-
-        # 3. Собираем данные в DataFrame (названия колонок должны СТРОГО совпадать с X_train!)
-        # Помнишь, мы удалили 'revenue' и 'id', но 'title' остался в x? Передаем его тоже.
         input_data = pd.DataFrame([{
             'title': title,
             'budget': budget,
-            'release_date': str(release_date),  # Преобразуем в строку, как в датасете
+            'release_date': str(release_date),
             'vote_average': vote_average,
             'vote_count': vote_count,
             'popularity': popularity,
             'original_language': original_language,
             'genres': genres
         }])
-
-        # 4. Делаем предсказание
         prediction = model.predict(input_data)[0]
-
-        # 5. Красиво выводим результат
         st.markdown("---")
         st.subheader("📊 Результат анализа:")
         if prediction > budget:
